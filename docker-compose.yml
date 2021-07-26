@@ -1,0 +1,42 @@
+version: '3.7'
+services:
+  jenkins_master:
+    user: root
+    image: jenkins/jenkins:lts
+    pull_policy: always
+    container_name: jenkins-server
+    volumes:
+      - ./jenkins_home:/var/jenkins_home
+      - ./jenkins_log:/var/log/jenkins
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /usr/local/bin/docker:/usr/local/bin/docker
+    expose:
+      - 8080
+    environment:
+      JAVA_OPTS: "-Djenkins.install.runSetupWizard=false -Djava.awt.headless=true"
+      TZ: "Canada/Eastern"
+    networks:
+      - jenkins_nw
+    restart: unless-stopped
+  nginx:
+    image: "nginx:latest"
+    ports:
+      - 80:80
+      - 443:443
+      - 50000:50000
+      - 50022:50022
+    container_name: nginx-proxy
+    volumes:
+      - ./nginx/certs:/etc/ssl
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx_log:/var/log/nginx/jenkins
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    networks:
+      - jenkins_nw
+    depends_on:
+      - jenkins_master
+    restart: unless-stopped
+
+networks:
+  jenkins_nw:
+    driver: bridge
