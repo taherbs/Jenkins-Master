@@ -10,6 +10,9 @@ services:
       - ./jenkins_log:/var/log/jenkins
       - /var/run/docker.sock:/var/run/docker.sock
       - /usr/local/bin/docker:/usr/local/bin/docker
+    ports:
+      - 50000:50000
+      - 50022:50022
     expose:
       - 8080
     environment:
@@ -23,8 +26,6 @@ services:
     ports:
       - 80:80
       - 443:443
-      - 50000:50000
-      - 50022:50022
     container_name: nginx-proxy
     volumes:
       - ./nginx/certs:/etc/ssl
